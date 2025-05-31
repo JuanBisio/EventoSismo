@@ -1,56 +1,98 @@
 <!doctype html>
 <html>
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <title>Listado de Eventos</title>
   <style>
-    body { font:14px Arial, sans-serif; margin:20px; }
-    table { width:100%; border-collapse:collapse; margin-top:20px; }
-    th, td { border:1px solid #ccc; padding:8px; text-align:left; }
-    th { background:#f0f0f0; }
-    tr:hover { background:#f9f9f9; cursor:pointer; }
-    h1 { margin-bottom:10px; }
-    a { text-decoration:none; color:#0066cc; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #e0e5ec;
+    }
+    h1 {
+      font-size: 2.5rem;
+      color: #333;
+      text-shadow: 1px 1px #fff;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      box-shadow:
+        8px 8px 16px rgba(0,0,0,0.1),
+       -8px -8px 16px rgba(255,255,255,0.7);
+      background: #e0e5ec;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px 16px;
+    }
+    th {
+      background: #e0e5ec;
+      color: #555;
+      font-size: 1.15rem;
+      box-shadow:
+        inset 2px 2px 4px rgba(0,0,0,0.1),
+        inset -2px -2px 4px rgba(255,255,255,0.7);
+    }
+    tr {
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    tr:hover {
+      background: #d1d9e6;
+    }
+    td {
+      font-size: 1.05rem;
+      color: #444;
+    }
+    form button {
+      background: #e0e5ec;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      box-shadow:
+        4px 4px 8px rgba(0,0,0,0.1),
+       -4px -4px 8px rgba(255,255,255,0.7);
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+    form button:hover {
+      background: #d1d9e6;
+    }
   </style>
 </head>
 <body>
-  <h1>Listado de Eventos Pendientes</h1>
-  <!-- Botón para reconstruir (reseed) la base de datos -->
-<form method="post" action="{{ url_for('reseed') }}" style="margin-bottom: 1rem;">
-  <button type="submit"
-          style="padding: 6px 12px; background-color: #d9534f; color: white; border: none; border-radius: 4px; cursor: pointer;">
-    🔄 Reconstruir base de datos
-  </button>
-</form>
-
-  {% if eventos %}
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Fecha y Hora</th>
-          <th>Epicentro</th>
-          <th>Hipocentro</th>
-          <th>Magnitud</th>
-          <th>Estado</th>
-        </tr>
-      </thead>
-      <tbody>
+  <h1>Listado de Eventos</h1>
+  <form method="post" action="{{ url_for('reseed') }}">
+    <button type="submit">🔄 Reconstruir base de datos</button>
+  </form>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Fecha y Hora</th>
+        <th>Epicentro</th>
+        <th>Hipocentro</th>
+        <th>Magnitud</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody>
       {% for ev in eventos %}
-        <tr onclick="window.location='{{ url_for('detalle', event_id=ev.id_evento) }}'">
-          <td>{{ ev.id_evento }}</td>
-          <td>{{ ev.fecha_hora }}</td>
-          <td>{{ ev.ubicacion.epicentro }}</td>
-          <td>{{ ev.ubicacion.hipocentro }} km</td>
-          <td>{{ ev.magnitud }}</td>
-          <td>{{ ev.estado.nombre }}</td>
-        </tr>
+      <tr onclick="location.href='{{ url_for('detalle', event_id=ev.id_evento) }}'">
+        <td>{{ ev.id_evento }}</td>
+        <td>{{ ev.fecha_hora }}</td>
+        <td>{{ ev.ubicacion.epicentro }}</td>
+        <td>{{ ev.ubicacion.hipocentro }} km</td>
+        <td>{{ ev.magnitud }}</td>
+        <td>{{ ev.estado.getNombre() }}</td>
+      </tr>
       {% endfor %}
-      </tbody>
-    </table>
-  {% else %}
-    <p>No hay eventos pendientes de revisión.</p>
-  {% endif %}
-  
+    </tbody>
+  </table>
 </body>
 </html>

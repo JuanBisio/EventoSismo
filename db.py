@@ -1,3 +1,5 @@
+# db.py
+
 import sqlite3
 from pathlib import Path
 
@@ -14,7 +16,7 @@ def get_connection():
 
 def init_db():
     """
-    Crea las tablas Evento y CambioEstado si no existen.
+    Crea las tablas Evento, SerieTemporal, MuestraSismica y CambioEstado si no existen.
     """
     ddl_evento = """
     CREATE TABLE IF NOT EXISTS Evento (
@@ -38,6 +40,28 @@ def init_db():
     );
     """
 
+    ddl_serie = """
+    CREATE TABLE IF NOT EXISTS SerieTemporal (
+        id_serie        INTEGER PRIMARY KEY AUTOINCREMENT,
+        id_evento       INTEGER NOT NULL,
+        estacion        TEXT    NOT NULL,
+        fecha_registro  TEXT    NOT NULL,
+        FOREIGN KEY (id_evento) REFERENCES Evento(id_evento) ON DELETE CASCADE
+    );
+    """
+
+    ddl_muestra = """
+    CREATE TABLE IF NOT EXISTS MuestraSismica (
+        id_muestra      INTEGER PRIMARY KEY AUTOINCREMENT,
+        id_serie        INTEGER NOT NULL,
+        fecha_muestra   TEXT    NOT NULL,
+        velocidad_onda  REAL    NOT NULL,
+        frecuencia_onda REAL    NOT NULL,
+        longitud_onda   REAL    NOT NULL,
+        FOREIGN KEY (id_serie) REFERENCES SerieTemporal(id_serie) ON DELETE CASCADE
+    );
+    """
+
     ddl_cambio = """
     CREATE TABLE IF NOT EXISTS CambioEstado (
         id_cambio       INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -46,13 +70,15 @@ def init_db():
         fecha_fin       TEXT    NULL,
         estado_nombre   TEXT    NOT NULL,
         estado_desc     TEXT    NULL,
-        FOREIGN KEY (id_evento) REFERENCES Evento(id_evento)
+        FOREIGN KEY (id_evento) REFERENCES Evento(id_evento) ON DELETE CASCADE
     );
     """
 
     conn = get_connection()
     cursor = conn.cursor()
     cursor.execute(ddl_evento)
+    cursor.execute(ddl_serie)
+    cursor.execute(ddl_muestra)
     cursor.execute(ddl_cambio)
     conn.commit()
     conn.close()

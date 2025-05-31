@@ -1,125 +1,212 @@
 <!doctype html>
 <html>
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <title>Detalle Evento {{ evento.id_evento }}</title>
   <style>
-    body { font:14px Arial, sans-serif; margin:20px; }
-    section { margin-bottom:20px; }
-    h2 { margin-top:30px; }
-    table { width:100%; border-collapse:collapse; margin-top:10px; }
-    th, td { border:1px solid #ccc; padding:6px; }
-    th { background:#f0f0f0; }
-    label { display:block; margin-top:8px; }
-    input[type=text] { padding:4px; width:300px; }
-    button { margin:6px; padding:6px 12px; }
-    .error { color:red; }
-    a { text-decoration:none; color:#0066cc; }
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #e0e5ec;
+    }
+    h1 {
+      font-size: 2.5rem;
+      color: #333;
+      text-shadow: 1px 1px #fff;
+      margin-bottom: 20px;
+    }
+    section {
+      background: #e0e5ec;
+      margin-bottom: 20px;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow:
+        8px 8px 16px rgba(0,0,0,0.1),
+       -8px -8px 16px rgba(255,255,255,0.7);
+    }
+    h2 {
+      font-size: 1.8rem;
+      margin-bottom: 12px;
+      color: #444;
+    }
+    label {
+      display: block;
+      margin-top: 8px;
+      font-size: 1.1rem;
+      color: #555;
+    }
+    input {
+      padding: 8px;
+      width: 100%;
+      font-size: 1rem;
+      color: #333;
+      background: #e0e5ec;
+      border: none;
+      border-radius: 8px;
+      box-shadow:
+        inset 4px 4px 8px rgba(0,0,0,0.1),
+       inset -4px -4px 8px rgba(255,255,255,0.7);
+      margin-top: 4px;
+    }
+    button {
+      background: #e0e5ec;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      box-shadow:
+        4px 4px 8px rgba(0,0,0,0.1),
+       -4px -4px 8px rgba(255,255,255,0.7);
+      cursor: pointer;
+      margin-top: 12px;
+    }
+    button:hover {
+      background: #d1d9e6;
+    }
+    th, td {
+      padding: 12px 16px;
+      font-size: 1rem;
+      color: #444;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      box-shadow:
+        8px 8px 16px rgba(0,0,0,0.1),
+       -8px -8px 16px rgba(255,255,255,0.7);
+      background: #e0e5ec;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    th {
+      background: #e0e5ec;
+      box-shadow:
+        inset 2px 2px 4px rgba(0,0,0,0.1),
+        inset -2px -2px 4px rgba(255,255,255,0.7);
+      font-weight: bold;
+    }
+    tr:hover {
+      background: #d1d9e6;
+    }
+    .btn-confirm {
+      color: #5cb85c;
+      margin-right: 10px;
+    }
+    .btn-reject {
+      color: #d9534f;
+      margin-right: 10px;
+    }
+    .btn-expert {
+      color: #f0ad4e;
+    }
+    .btn-map {
+      color: #5bc0de;
+    }
+    .history-list li {
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+      color: #555;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
   </style>
 </head>
 <body>
   <h1>Detalle del Evento {{ evento.id_evento }}</h1>
 
-  <!-- Sección: Datos básicos del evento -->
   <section>
     <p><strong>Fecha/Hora:</strong> {{ evento.fecha_hora }}</p>
-    <p><strong>Ubicación:</strong> Epicentro ({{ evento.ubicacion.epicentro }}) – 
-       Hipocentro ({{ evento.ubicacion.hipocentro }} km)</p>
+    <p><strong>Ubicación:</strong> Epicentro ({{ evento.ubicacion.epicentro }}) – Hipocentro ({{ evento.ubicacion.hipocentro }} km)</p>
     <p><strong>Magnitud:</strong> {{ evento.magnitud }}</p>
-    <p><strong>Clasificación:</strong> {{ evento.clasificacion }}</p>
-    <p><strong>Alcance:</strong> {{ evento.alcance }}</p>
-    <p><strong>Origen:</strong> {{ evento.origen }}</p>
-    <p><strong>Estado Actual:</strong> {{ evento.estado.nombre }}</p>
+    <p><strong>Clasificación:</strong> {{ evento.clasificacion.nombre }} ({{ evento.clasificacion.km_profundidad_desde }}–{{ evento.clasificacion.km_profundidad_hasta }} km)</p>
+    <p><strong>Alcance:</strong> {{ evento.alcance.nombre }} – {{ evento.alcance.descripcion }}</p>
+    <p><strong>Origen:</strong> {{ evento.origen.nombre }} – {{ evento.origen.descripcion }}</p>
+    <p><strong>Estado Actual:</strong> {{ evento.estado.getNombre() }}</p>
   </section>
 
   {% if error %}
-    <p class="error">{{ error }}</p>
+  <p style="color: #d9534f; font-size: 1.1rem;"><strong>{{ error }}</strong></p>
   {% endif %}
 
-  <!-- Sección: Modificar datos del evento -->
   <section>
     <h2>Modificar Datos del Evento</h2>
     <form method="post" action="{{ url_for('detalle', event_id=evento.id_evento) }}">
-      <input type="hidden" name="accion" value="update">
-      <label>Magnitud (número): <input name="magnitud" value="{{ evento.magnitud }}"></label>
-      <label>Alcance: <input name="alcance" value="{{ evento.alcance }}"></label>
-      <label>Origen (tipo): <input name="origen" value="{{ evento.origen.tipo }}"></label>
-      <button type="submit" onclick="return confirm('¿Guardar cambios de magnitud/alcance/origen?')">
-        Guardar Cambios
-      </button>
+      <input type="hidden" name="accion" value="update" />
+      <label>Magnitud:
+        <input name="magnitud" value="{{ evento.magnitud }}" />
+      </label>
+      <label>Alcance:
+        <input name="alcance" value="{{ evento.alcance.nombre }} - {{ evento.alcance.descripcion }}" />
+      </label>
+      <label>Origen (nombre):
+        <input name="origen" value="{{ evento.origen.nombre }}" />
+      </label>
+      <button type="submit" class="btn-update">Guardar Cambios</button>
     </form>
   </section>
 
-  <!-- Sección: Acciones de revisión -->
   <section>
     <h2>Acciones de Revisión</h2>
     <form method="post" action="{{ url_for('detalle', event_id=evento.id_evento) }}">
-      <button name="accion" value="confirm" 
-              onclick="return confirm('¿Confirmar evento?')">
-        ✔ Confirmar Evento
-      </button>
-      <button name="accion" value="reject" 
-              onclick="return confirm('¿Rechazar evento?')">
-        ✖ Rechazar Evento
-      </button>
-      <button name="accion" value="expert" 
-              onclick="return confirm('¿Solicitar revisión a experto?')">
-        🕵 Solicitar Revisión a Experto
-      </button>
+      <button name="accion" value="confirm" class="btn-confirm" onclick="return confirm('¿Confirmar evento?')">✔ Confirmar</button>
+      <button name="accion" value="reject" class="btn-reject" onclick="return confirm('¿Rechazar evento?')">✖ Rechazar</button>
+      <button name="accion" value="expert" class="btn-expert" onclick="return confirm('¿Solicitar revisión a experto?')">👷‍♂️ Expert</button>
     </form>
   </section>
 
-  <!-- Sección: Opciones adicionales -->
   <section>
     <h2>Opciones Adicionales</h2>
     <form method="get" action="{{ url_for('mostrar_mapa', event_id=evento.id_evento) }}">
-      <button type="submit" onclick="return confirm('¿Visualizar mapa?')">🗺 Mostrar Mapa</button>
+      <button type="submit" class="btn-map" onclick="return confirm('¿Visualizar mapa?')">🗺️ Mostrar Mapa</button>
     </form>
   </section>
 
-  <!-- Sección: Series Temporales y Muestras -->
   <section>
     <h2>Series Temporales y Muestras</h2>
     {% if evento.series_temporales %}
-      {% for s in evento.series_temporales %}
-        <h3>Estación: {{ s.estacion }} (Registro: {{ s.fecha_hora_registro }})</h3>
+      {% for serie in evento.series_temporales %}
+        <h3>Estación: <strong>{{ serie.estacion }}</strong> (Registro: {{ serie.fecha_registro }})</h3>
         <table>
           <thead>
             <tr>
-              <th>Tiempo</th><th>Velocidad (km/s)</th><th>Frecuencia (Hz)</th><th>Longitud (km)</th>
+              <th>Instante</th>
+              <th>Velocidad</th>
+              <th>Frecuencia</th>
+              <th>Longitud</th>
             </tr>
           </thead>
           <tbody>
-            {% for m in s.muestras %}
-              <tr>
-                <td>{{ m.fecha_hora_muestra }}</td>
-                <td>{{ m.velocidad_onda }}</td>
-                <td>{{ m.frecuencia_onda }}</td>
-                <td>{{ m.longitud_onda }}</td>
-              </tr>
+            {% for muestra in serie.muestras %}
+            <tr>
+              <td>{{ muestra.fecha_hora }}</td>
+              <td>{{ muestra.velocidad_onda }}</td>
+              <td>{{ muestra.frecuencia_onda }}</td>
+              <td>{{ muestra.longitud }}</td>
+            </tr>
             {% endfor %}
           </tbody>
         </table>
+        <form method="post" action="{{ url_for('sismograma', event_id=evento.id_evento, estacion=serie.estacion) }}">
+          <button type="submit" style="margin-top: 12px;">📈 Generar Sismograma</button>
+        </form>
       {% endfor %}
     {% else %}
       <p>No hay series temporales registradas.</p>
     {% endif %}
   </section>
 
-  <!-- Sección: Historial de Estados -->
   <section>
     <h2>Historial de Estados</h2>
-    {% if evento.cambios %}
-      <ul>
-      {% for c in evento.cambios %}
-        <li>{{ c }}</li>
+    <ul class="history-list">
+      {% for cambio in evento.cambios %}
+      <li>{{ cambio }}</li>
       {% endfor %}
-      </ul>
-    {% else %}
-      <p>No hay cambios de estado registrados.</p>
-    {% endif %}
+    </ul>
   </section>
 
-  <p><a href="{{ url_for('index') }}">← Volver al Listado</a></p>
+  <p><a href="{{ url_for('index') }}">← Volver al listado</a></p>
 </body>
 </html>
