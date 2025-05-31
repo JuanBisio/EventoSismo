@@ -15,6 +15,14 @@
 </head>
 <body>
   <h1>Listado de Eventos Pendientes</h1>
+  <!-- Botón para reconstruir (reseed) la base de datos -->
+<form method="post" action="{{ url_for('reseed') }}" style="margin-bottom: 1rem;">
+  <button type="submit"
+          style="padding: 6px 12px; background-color: #d9534f; color: white; border: none; border-radius: 4px; cursor: pointer;">
+    🔄 Reconstruir base de datos
+  </button>
+</form>
+
   {% if eventos %}
     <table>
       <thead>
@@ -43,5 +51,6 @@
   {% else %}
     <p>No hay eventos pendientes de revisión.</p>
   {% endif %}
+  
 </body>
 </html>
