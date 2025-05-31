@@ -19,7 +19,6 @@ from indexClases import (
 from repository import guardar_evento, guardar_cambio_estado, cargar_evento_por_id
 from db import init_db, get_connection
 
-
 app = Flask(__name__)
 app.config['analista'] = None
 
@@ -114,6 +113,7 @@ def index():
     """
     Página de inicio con listado de eventos pendientes y botón de reseed
     """
+    analista = app.config['analista']
     # Cargar eventos cuyo estado sea "AutoDetectado"
     conn = get_connection()
     cur = conn.cursor()
@@ -127,7 +127,11 @@ def index():
         if ev and ev.estado.getNombre() == "AutoDetectado":
             eventos_pendientes.append(ev)
 
-    return render_template('lista_eventos.html', eventos=eventos_pendientes)
+    return render_template(
+        'lista_eventos.html',
+        eventos=eventos_pendientes,
+        analista=analista
+    )
 
 @app.route('/reseed', methods=['POST'])
 def reseed():
@@ -157,7 +161,12 @@ def detalle(event_id):
             ori = request.form.get('origen', '').strip()
             if not mag or not alc or not ori:
                 error = "Magnitud, Alcance y Origen son obligatorios."
-                return render_template('detalle_evento.html', evento=evento, error=error)
+                return render_template(
+                    'detalle_evento.html',
+                    evento=evento,
+                    error=error,
+                    analista=analista
+                )
             evento.magnitud = mag
             evento.alcance = AlcanceSismo(alc, alc)
             evento.origen = OrigenDeGeneracion(ori)
@@ -179,14 +188,24 @@ def detalle(event_id):
                 guardar_evento(evento)
                 guardar_cambio_estado(event_id, evento.cambios[-1])
             return redirect(url_for('detalle', event_id=event_id))
-    return render_template('detalle_evento.html', evento=evento, error=error)
+    return render_template(
+        'detalle_evento.html',
+        evento=evento,
+        error=error,
+        analista=analista
+    )
 
 @app.route('/map/<int:event_id>')
 def mostrar_mapa(event_id):
+    analista = app.config['analista']
     evento = cargar_evento_por_id(event_id)
     if not evento:
         return redirect(url_for('index'))
-    return render_template('mapa.html', evento=evento)
+    return render_template(
+        'mapa.html',
+        evento=evento,
+        analista=analista
+    )
 
 @app.route('/sismograma/<int:event_id>/<estacion>', methods=['POST'])
 def sismograma(event_id, estacion):
@@ -206,7 +225,7 @@ def sismograma(event_id, estacion):
     )
 
 def main():
-    analista = AnalistaEnSismos("María Pérez", "maria.perez@ccrs.gov.ar")
+    analista = AnalistaEnSismos("Bisio Juan Martin", "bisiojuan06@gmail.com")
     app.config['analista'] = analista
     # Inicializar BD y datos de ejemplo si no existe
     if not os.path.exists(DB_PATH):
