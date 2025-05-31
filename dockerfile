@@ -1,21 +1,20 @@
-# Dockerfile
+# Dockerfile corregido: escucha en $PORT en lugar de puerto fijo
 
-# 1. Partimos de una imagen ligera de Python 3.9
 FROM python:3.9-slim
 
-# 2. Configuramos el directorio de trabajo dentro del contenedor
+# 1) Directorio de trabajo
 WORKDIR /usr/src/app
 
-# 3. Copiamos los archivos de tu proyecto dentro del contenedor
+# 2) Copiar todos los archivos del proyecto
 COPY . .
 
-# 4. Instalamos pip, actualizamos y luego instalamos las dependencias
+# 3) Instalar dependencias
 RUN pip install --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
 
-# 5. Exponemos el puerto 8000 (este será el puerto que Gunicorn atenderá)
+# 4) Exponer (sin número fijo; Vercel usará su propia variable $PORT, pero mantenemos esta línea para documentación interna)
 EXPOSE 8000
 
-# 6. Definimos el comando por defecto que iniciará Gunicorn
-#    “app_flask:app” indica “archivo app_flask.py, variable Flask llamada 'app'”
-CMD ["gunicorn", "app_flask:app", "--bind", "0.0.0.0:8000"]
+# 5) CMD en formato “exec”: Gunicorn lee la variable de entorno $PORT
+#    Usamos “sh -c” para que $PORT se expanda dinámicamente al iniciar el contenedor.
+CMD ["sh", "-c", "gunicorn app_flask:app --bind 0.0.0.0:$PORT"]
