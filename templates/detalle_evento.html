@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalle Evento {{ evento.id_evento }}</title>
+</head>
+<body>
+    <h1>Detalle del Evento {{ evento.id_evento }}</h1>
+
+    <p><strong>Fecha/Hora de Ocurrencia:</strong> {{ evento.getFechaHoraOcurrencia() }}</p>
+    <p><strong>Ubicación:</strong>
+       Epicentro ({{ evento.getLatitudEpicentro() }}, {{ evento.getLongitudEpicentro() }}) |
+       Hipocentro: {{ evento.getHipocentro() }} km
+    </p>
+
+    <p><strong>Magnitud:</strong> {{ evento.magnitud }}</p>
+    <p><strong>Clasificación:</strong> {{ evento.clasificacion }}</p>
+    <p><strong>Alcance:</strong> {{ evento.alcance }}</p>
+    <p><strong>Origen:</strong> {{ evento.origen }}</p>
+
+    <hr>
+
+    <h2>Series Temporales y Muestras</h2>
+    {% for ds in datos.series %}
+        <h3>Serie registrada en {{ ds.serie.fecha_hora_registro }} (Condición: {{ ds.serie.condicion_alarma }})</h3>
+        <ul>
+        {% for m in ds.muestras %}
+            <li>{{ m }}</li>
+        {% endfor %}
+        </ul>
+        <br>
+    {% endfor %}
+
+    <hr>
+
+    <h2>Sismogramas Generados</h2>
+    <ul>
+    {% for id_est, ruta in datos.sismogramas.items() %}
+        <li>Estación {{ id_est }}:
+            <!-- En un entorno real, <img src="{{ url_for('static', filename=ruta) }}"> -->
+            <span>{{ ruta }}</span>
+        </li>
+    {% endfor %}
+    </ul>
+
+    <hr>
+
+    <h2>Acciones del Analista</h2>
+    <form action="{{ url_for('accion_evento') }}" method="post">
+        <!-- Enviar el ID del evento oculto -->
+        <input type="hidden" name="evento_id" value="{{ evento.id_evento }}">
+
+        <p>
+            <label>
+                <input type="radio" name="accion" value="Confirmar" required>
+                Confirmar Evento
+            </label><br>
+            <label>
+                <input type="radio" name="accion" value="Rechazar">
+                Rechazar Evento
+            </label><br>
+            <label>
+                <input type="radio" name="accion" value="SolicitarExperto">
+                Solicitar Revisión a Experto
+            </label>
+        </p>
+
+        <p>¿Desea modificar datos?</p>
+        <label>
+            <input type="checkbox" name="modificar" value="true"> Sí, quiero editar datos
+        </label><br><br>
+
+        <div>
+            <h3>Modificar Magnitud</h3>
+            <label>Número: <input type="text" name="magnitud_numero"></label><br>
+            <label>Descripción: <input type="text" name="magnitud_desc"></label><br>
+            <label>Unidad: <input type="text" name="magnitud_unidad"></label><br>
+        </div>
+
+        <div>
+            <h3>Modificar Alcance</h3>
+            <label>Nombre: <input type="text" name="alcance_nombre"></label><br>
+            <label>Descripción: <input type="text" name="alcance_desc"></label><br>
+        </div>
+
+        <div>
+            <h3>Modificar Origen</h3>
+            <label>Nombre: <input type="text" name="origen_nombre"></label><br>
+            <label>Descripción: <input type="text" name="origen_desc"></label><br>
+        </div>
+
+        <button type="submit">Enviar Acción</button>
+    </form>
+
+    <p><a href="{{ url_for('listar_eventos') }}">← Volver a Lista de Eventos</a></p>
+</body>
+</html>

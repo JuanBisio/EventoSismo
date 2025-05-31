@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Eventos No Revisados</title>
+</head>
+<body>
+    <h1>Eventos Sísmicos Pendientes de Revisión</h1>
+    {% if eventos %}
+        <ul>
+        {% for ev in eventos %}
+            <li>
+                ID: {{ ev.id_evento }} |
+                Fecha: {{ ev.getFechaHoraOcurrencia() }} |
+                Estado: {{ ev.estado.nombre }}
+                &nbsp;--&gt;
+                <a href="{{ url_for('detalle_evento', id_evento=ev.id_evento) }}">Ver Detalle</a>
+            </li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No hay eventos para revisar en este momento.</p>
+    {% endif %}
+</body>
+</html>
+<!DOCTYPE html>
