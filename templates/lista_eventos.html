@@ -1,26 +1,47 @@
-<!DOCTYPE html>
-<html lang="es">
+<!doctype html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Eventos No Revisados</title>
+  <meta charset="utf-8">
+  <title>Listado de Eventos</title>
+  <style>
+    body { font:14px Arial, sans-serif; margin:20px; }
+    table { width:100%; border-collapse:collapse; margin-top:20px; }
+    th, td { border:1px solid #ccc; padding:8px; text-align:left; }
+    th { background:#f0f0f0; }
+    tr:hover { background:#f9f9f9; cursor:pointer; }
+    h1 { margin-bottom:10px; }
+    a { text-decoration:none; color:#0066cc; }
+  </style>
 </head>
 <body>
-    <h1>Eventos Sísmicos Pendientes de Revisión</h1>
-    {% if eventos %}
-        <ul>
-        {% for ev in eventos %}
-            <li>
-                ID: {{ ev.id_evento }} |
-                Fecha: {{ ev.getFechaHoraOcurrencia() }} |
-                Estado: {{ ev.estado.nombre }}
-                &nbsp;--&gt;
-                <a href="{{ url_for('detalle_evento', id_evento=ev.id_evento) }}">Ver Detalle</a>
-            </li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <p>No hay eventos para revisar en este momento.</p>
-    {% endif %}
+  <h1>Listado de Eventos Pendientes</h1>
+  {% if eventos %}
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Fecha y Hora</th>
+          <th>Epicentro</th>
+          <th>Hipocentro</th>
+          <th>Magnitud</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for ev in eventos %}
+        <tr onclick="window.location='{{ url_for('detalle', event_id=ev.id_evento) }}'">
+          <td>{{ ev.id_evento }}</td>
+          <td>{{ ev.fecha_hora }}</td>
+          <td>{{ ev.ubicacion.epicentro }}</td>
+          <td>{{ ev.ubicacion.hipocentro }} km</td>
+          <td>{{ ev.magnitud }}</td>
+          <td>{{ ev.estado.nombre }}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No hay eventos pendientes de revisión.</p>
+  {% endif %}
 </body>
 </html>
-<!DOCTYPE html>

@@ -1,97 +1,125 @@
-<!DOCTYPE html>
-<html lang="es">
+<!doctype html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Detalle Evento {{ evento.id_evento }}</title>
+  <meta charset="utf-8">
+  <title>Detalle Evento {{ evento.id_evento }}</title>
+  <style>
+    body { font:14px Arial, sans-serif; margin:20px; }
+    section { margin-bottom:20px; }
+    h2 { margin-top:30px; }
+    table { width:100%; border-collapse:collapse; margin-top:10px; }
+    th, td { border:1px solid #ccc; padding:6px; }
+    th { background:#f0f0f0; }
+    label { display:block; margin-top:8px; }
+    input[type=text] { padding:4px; width:300px; }
+    button { margin:6px; padding:6px 12px; }
+    .error { color:red; }
+    a { text-decoration:none; color:#0066cc; }
+  </style>
 </head>
 <body>
-    <h1>Detalle del Evento {{ evento.id_evento }}</h1>
+  <h1>Detalle del Evento {{ evento.id_evento }}</h1>
 
-    <p><strong>Fecha/Hora de Ocurrencia:</strong> {{ evento.getFechaHoraOcurrencia() }}</p>
-    <p><strong>Ubicación:</strong>
-       Epicentro ({{ evento.getLatitudEpicentro() }}, {{ evento.getLongitudEpicentro() }}) |
-       Hipocentro: {{ evento.getHipocentro() }} km
-    </p>
-
+  <!-- Sección: Datos básicos del evento -->
+  <section>
+    <p><strong>Fecha/Hora:</strong> {{ evento.fecha_hora }}</p>
+    <p><strong>Ubicación:</strong> Epicentro ({{ evento.ubicacion.epicentro }}) – 
+       Hipocentro ({{ evento.ubicacion.hipocentro }} km)</p>
     <p><strong>Magnitud:</strong> {{ evento.magnitud }}</p>
     <p><strong>Clasificación:</strong> {{ evento.clasificacion }}</p>
     <p><strong>Alcance:</strong> {{ evento.alcance }}</p>
     <p><strong>Origen:</strong> {{ evento.origen }}</p>
+    <p><strong>Estado Actual:</strong> {{ evento.estado.nombre }}</p>
+  </section>
 
-    <hr>
+  {% if error %}
+    <p class="error">{{ error }}</p>
+  {% endif %}
 
-    <h2>Series Temporales y Muestras</h2>
-    {% for ds in datos.series %}
-        <h3>Serie registrada en {{ ds.serie.fecha_hora_registro }} (Condición: {{ ds.serie.condicion_alarma }})</h3>
-        <ul>
-        {% for m in ds.muestras %}
-            <li>{{ m }}</li>
-        {% endfor %}
-        </ul>
-        <br>
-    {% endfor %}
-
-    <hr>
-
-    <h2>Sismogramas Generados</h2>
-    <ul>
-    {% for id_est, ruta in datos.sismogramas.items() %}
-        <li>Estación {{ id_est }}:
-            <!-- En un entorno real, <img src="{{ url_for('static', filename=ruta) }}"> -->
-            <span>{{ ruta }}</span>
-        </li>
-    {% endfor %}
-    </ul>
-
-    <hr>
-
-    <h2>Acciones del Analista</h2>
-    <form action="{{ url_for('accion_evento') }}" method="post">
-        <!-- Enviar el ID del evento oculto -->
-        <input type="hidden" name="evento_id" value="{{ evento.id_evento }}">
-
-        <p>
-            <label>
-                <input type="radio" name="accion" value="Confirmar" required>
-                Confirmar Evento
-            </label><br>
-            <label>
-                <input type="radio" name="accion" value="Rechazar">
-                Rechazar Evento
-            </label><br>
-            <label>
-                <input type="radio" name="accion" value="SolicitarExperto">
-                Solicitar Revisión a Experto
-            </label>
-        </p>
-
-        <p>¿Desea modificar datos?</p>
-        <label>
-            <input type="checkbox" name="modificar" value="true"> Sí, quiero editar datos
-        </label><br><br>
-
-        <div>
-            <h3>Modificar Magnitud</h3>
-            <label>Número: <input type="text" name="magnitud_numero"></label><br>
-            <label>Descripción: <input type="text" name="magnitud_desc"></label><br>
-            <label>Unidad: <input type="text" name="magnitud_unidad"></label><br>
-        </div>
-
-        <div>
-            <h3>Modificar Alcance</h3>
-            <label>Nombre: <input type="text" name="alcance_nombre"></label><br>
-            <label>Descripción: <input type="text" name="alcance_desc"></label><br>
-        </div>
-
-        <div>
-            <h3>Modificar Origen</h3>
-            <label>Nombre: <input type="text" name="origen_nombre"></label><br>
-            <label>Descripción: <input type="text" name="origen_desc"></label><br>
-        </div>
-
-        <button type="submit">Enviar Acción</button>
+  <!-- Sección: Modificar datos del evento -->
+  <section>
+    <h2>Modificar Datos del Evento</h2>
+    <form method="post" action="{{ url_for('detalle', event_id=evento.id_evento) }}">
+      <input type="hidden" name="accion" value="update">
+      <label>Magnitud (número): <input name="magnitud" value="{{ evento.magnitud }}"></label>
+      <label>Alcance: <input name="alcance" value="{{ evento.alcance }}"></label>
+      <label>Origen (tipo): <input name="origen" value="{{ evento.origen.tipo }}"></label>
+      <button type="submit" onclick="return confirm('¿Guardar cambios de magnitud/alcance/origen?')">
+        Guardar Cambios
+      </button>
     </form>
+  </section>
 
-    <p><a href="{{ url_for('listar_eventos') }}">← Volver a Lista de Eventos</a></p>
+  <!-- Sección: Acciones de revisión -->
+  <section>
+    <h2>Acciones de Revisión</h2>
+    <form method="post" action="{{ url_for('detalle', event_id=evento.id_evento) }}">
+      <button name="accion" value="confirm" 
+              onclick="return confirm('¿Confirmar evento?')">
+        ✔ Confirmar Evento
+      </button>
+      <button name="accion" value="reject" 
+              onclick="return confirm('¿Rechazar evento?')">
+        ✖ Rechazar Evento
+      </button>
+      <button name="accion" value="expert" 
+              onclick="return confirm('¿Solicitar revisión a experto?')">
+        🕵 Solicitar Revisión a Experto
+      </button>
+    </form>
+  </section>
+
+  <!-- Sección: Opciones adicionales -->
+  <section>
+    <h2>Opciones Adicionales</h2>
+    <form method="get" action="{{ url_for('mostrar_mapa', event_id=evento.id_evento) }}">
+      <button type="submit" onclick="return confirm('¿Visualizar mapa?')">🗺 Mostrar Mapa</button>
+    </form>
+  </section>
+
+  <!-- Sección: Series Temporales y Muestras -->
+  <section>
+    <h2>Series Temporales y Muestras</h2>
+    {% if evento.series_temporales %}
+      {% for s in evento.series_temporales %}
+        <h3>Estación: {{ s.estacion }} (Registro: {{ s.fecha_hora_registro }})</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Tiempo</th><th>Velocidad (km/s)</th><th>Frecuencia (Hz)</th><th>Longitud (km)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for m in s.muestras %}
+              <tr>
+                <td>{{ m.fecha_hora_muestra }}</td>
+                <td>{{ m.velocidad_onda }}</td>
+                <td>{{ m.frecuencia_onda }}</td>
+                <td>{{ m.longitud_onda }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endfor %}
+    {% else %}
+      <p>No hay series temporales registradas.</p>
+    {% endif %}
+  </section>
+
+  <!-- Sección: Historial de Estados -->
+  <section>
+    <h2>Historial de Estados</h2>
+    {% if evento.cambios %}
+      <ul>
+      {% for c in evento.cambios %}
+        <li>{{ c }}</li>
+      {% endfor %}
+      </ul>
+    {% else %}
+      <p>No hay cambios de estado registrados.</p>
+    {% endif %}
+  </section>
+
+  <p><a href="{{ url_for('index') }}">← Volver al Listado</a></p>
 </body>
 </html>

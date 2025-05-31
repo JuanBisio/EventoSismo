@@ -33,26 +33,39 @@ class Estado:
 
 class CambioEstado:
     def __init__(self, fecha_hora_inicio, estado, fecha_hora_fin=None):
+        # fecha_hora_inicio and fecha_hora_fin can be datetime or str
         self.fecha_hora_inicio = fecha_hora_inicio
         self.estado = estado          # Instance of Estado
         self.fecha_hora_fin = fecha_hora_fin
-    
+
     @classmethod
     def new(cls, estado):
         return cls(datetime.now(), estado)
-    
+
     def setFechaHoraFin(self, fecha):
         self.fecha_hora_fin = fecha
-    
+
     def esActual(self):
         return self.fecha_hora_fin is None
-    
+
     def esPendienteRevision(self):
         return self.estado.nombre == "PendienteRevision"
-    
+
     def __str__(self):
-        fin = self.fecha_hora_fin.strftime('%Y-%m-%d %H:%M:%S') if self.fecha_hora_fin else "Actual"
-        return f"{self.estado.nombre} desde {self.fecha_hora_inicio.strftime('%Y-%m-%d %H:%M:%S')} hasta {fin}"
+        # Formatear fecha_hora_inicio, si es datetime
+        try:
+            ts_inicio = self.fecha_hora_inicio.strftime('%Y-%m-%d %H:%M:%S')
+        except Exception:
+            ts_inicio = str(self.fecha_hora_inicio)
+        # Formatear fecha_hora_fin, si existe y es datetime
+        if self.fecha_hora_fin:
+            try:
+                fin = self.fecha_hora_fin.strftime('%Y-%m-%d %H:%M:%S')
+            except Exception:
+                fin = str(self.fecha_hora_fin)
+        else:
+            fin = "Actual"
+        return f"{self.estado.nombre} desde {ts_inicio} hasta {fin}"
 
 class Usuario:
     def __init__(self, nombre, fechaAlta, contrasena=None):
