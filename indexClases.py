@@ -313,7 +313,7 @@ class EventoSismico:
 # -------------------- Example Usage (Main) --------------------
 def main():
     # Crear algunos analistas
-    analista = AnalistaEnSismos("Juan Pérez", "juan.perez@mail.com", datetime.now(), "s3cr3t")
+    analista = AnalistaEnSismos("Juan Martin Bisio", "juan.Bisio@mail.com", datetime.now(), "s3cr3t")
 
     # Crear ubicaciones
     ubic1 = UbicacionEvento((24.123, -65.987), 10.5)
